@@ -30,6 +30,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
+import android.media.AudioManager
+import android.media.ToneGenerator
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import java.text.DecimalFormat
 import java.util.Locale
 import kotlin.time.Duration
@@ -40,6 +45,18 @@ fun TimerScreen(
     modifier: Modifier = Modifier,
     timerViewModel: TimerViewModel = viewModel()
 ) {
+    val toneGenerator = remember { ToneGenerator(AudioManager.STREAM_ALARM, 100) }
+    DisposableEffect(Unit) {
+        onDispose { toneGenerator.release() }
+    }
+
+    LaunchedEffect(timerViewModel.finishedNaturally) {
+        if (timerViewModel.finishedNaturally) {
+            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 1500)
+            timerViewModel.onTimerFinishHandled()
+        }
+    }
+
     val progress by animateFloatAsState(
         targetValue = if (timerViewModel.totalMillis > 0) {
             timerViewModel.remainingMillis.toFloat() / timerViewModel.totalMillis

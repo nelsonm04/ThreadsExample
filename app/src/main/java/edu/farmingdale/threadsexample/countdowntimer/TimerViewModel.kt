@@ -34,6 +34,10 @@ class TimerViewModel : ViewModel() {
     var isRunning by mutableStateOf(false)
         private set
 
+    // Flag to indicate timer reached zero naturally
+    var finishedNaturally by mutableStateOf(false)
+        private set
+
     fun selectTime(hour: Int, min: Int, sec: Int) {
         selectedHour = hour
         selectedMinute = min
@@ -48,6 +52,7 @@ class TimerViewModel : ViewModel() {
         if (totalMillis > 0) {
             isRunning = true
             remainingMillis = totalMillis
+            finishedNaturally = false
 
             timerJob = viewModelScope.launch {
                 while (remainingMillis > 0) {
@@ -55,6 +60,7 @@ class TimerViewModel : ViewModel() {
                     remainingMillis -= 1000
                 }
 
+                finishedNaturally = true
                 isRunning = false
             }
         }
@@ -65,6 +71,7 @@ class TimerViewModel : ViewModel() {
             timerJob?.cancel()
             isRunning = false
             remainingMillis = 0
+            finishedNaturally = false
         }
     }
 
@@ -81,5 +88,10 @@ class TimerViewModel : ViewModel() {
         selectedHour = 0
         selectedMinute = 0
         selectedSecond = 0
+        finishedNaturally = false
+    }
+
+    fun onTimerFinishHandled() {
+        finishedNaturally = false
     }
 }
