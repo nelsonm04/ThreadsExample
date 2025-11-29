@@ -40,6 +40,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 // ToDo 3 DONE: Start the application using the CountDownActivity
 // ToDo 4 DONE: Make the Text of the timer larger
 // ToDo 5 DONE: Show a visual indicator of the timer going down to 0
-// ToDo 6: Add a button to rest the timer
+// ToDo 6 DONE: Add a button to rest the timer
 // ToDo 7: Play a sound when the timer reaches 0
 // ToDo 8: During the last 10 seconds, make the text red and bold

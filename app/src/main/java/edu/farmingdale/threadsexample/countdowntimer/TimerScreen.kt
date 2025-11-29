@@ -40,6 +40,14 @@ fun TimerScreen(
     modifier: Modifier = Modifier,
     timerViewModel: TimerViewModel = viewModel()
 ) {
+    val progress by animateFloatAsState(
+        targetValue = if (timerViewModel.totalMillis > 0) {
+            timerViewModel.remainingMillis.toFloat() / timerViewModel.totalMillis
+        } else 0f,
+        animationSpec = tween(durationMillis = 250, easing = LinearEasing),
+        label = "timerProgress"
+    )
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier = modifier
@@ -48,7 +56,11 @@ fun TimerScreen(
             contentAlignment = Alignment.Center
         ) {
             if (timerViewModel.isRunning) {
-
+                CircularProgressIndicator(
+                    progress = progress.coerceIn(0f, 1f),
+                    modifier = Modifier.fillMaxSize(),
+                    strokeWidth = 12.dp
+                )
             }
             Text(
                 text = timerText(timerViewModel.remainingMillis),
@@ -79,6 +91,17 @@ fun TimerScreen(
                 Text("Start")
             }
         }
+        Button(
+            onClick = timerViewModel::resetTimer,
+            enabled = timerViewModel.isRunning ||
+                    timerViewModel.selectedHour +
+                    timerViewModel.selectedMinute +
+                    timerViewModel.selectedSecond > 0 ||
+                    timerViewModel.remainingMillis > 0,
+            modifier = modifier.padding(top = 16.dp)
+        ) {
+            Text("Reset")
+        }
     }
 }
 
@@ -99,9 +122,9 @@ fun TimePicker(
     onTimePick: (Int, Int, Int) -> Unit = { _: Int, _: Int, _: Int -> }
 ) {
     // Values must be remembered for calls to onPick()
-    var hourVal by remember { mutableIntStateOf(hour) }
-    var minVal by remember { mutableIntStateOf(min) }
-    var secVal by remember { mutableIntStateOf(sec) }
+    var hourVal by remember(hour) { mutableIntStateOf(hour) }
+    var minVal by remember(min) { mutableIntStateOf(min) }
+    var secVal by remember(sec) { mutableIntStateOf(sec) }
 
     Row(
         horizontalArrangement = Arrangement.Center,
