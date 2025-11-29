@@ -1,5 +1,7 @@
 package edu.farmingdale.threadsexample.countdowntimer
 
+import android.media.AudioManager
+import android.media.ToneGenerator
 import android.util.Log
 import android.widget.NumberPicker
 import androidx.compose.animation.core.LinearEasing
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -16,25 +19,23 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
-import android.media.AudioManager
-import android.media.ToneGenerator
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import java.text.DecimalFormat
 import java.util.Locale
 import kotlin.time.Duration
@@ -57,6 +58,14 @@ fun TimerScreen(
         }
     }
 
+    val displayMillis = if (timerViewModel.isRunning || timerViewModel.remainingMillis > 0) {
+        timerViewModel.remainingMillis
+    } else {
+        (timerViewModel.selectedHour * 60 * 60 +
+                timerViewModel.selectedMinute * 60 +
+                timerViewModel.selectedSecond) * 1000L
+    }
+
     val progress by animateFloatAsState(
         targetValue = if (timerViewModel.totalMillis > 0) {
             timerViewModel.remainingMillis.toFloat() / timerViewModel.totalMillis
@@ -64,6 +73,7 @@ fun TimerScreen(
         animationSpec = tween(durationMillis = 250, easing = LinearEasing),
         label = "timerProgress"
     )
+    val isLastTenSeconds = displayMillis in 1_000..10_000
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
@@ -80,8 +90,15 @@ fun TimerScreen(
                 )
             }
             Text(
-                text = timerText(timerViewModel.remainingMillis),
+                text = timerText(displayMillis),
                 fontSize = 72.sp,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = if (isLastTenSeconds) FontWeight.Bold else FontWeight.Normal,
+                color = if (isLastTenSeconds) Color.Red else Color.Unspecified,
+                textAlign = TextAlign.Center,
+                softWrap = false,
+                maxLines = 1,
+                modifier = Modifier.padding(horizontal = 8.dp)
             )
         }
         TimePicker(
@@ -89,6 +106,10 @@ fun TimerScreen(
             min = timerViewModel.selectedMinute,
             sec = timerViewModel.selectedSecond,
             onTimePick = timerViewModel::selectTime
+        )
+        Text(
+            text = "Selected: ${timerText(displayMillis)}",
+            modifier = Modifier.padding(top = 8.dp)
         )
         if (timerViewModel.isRunning) {
             Button(
