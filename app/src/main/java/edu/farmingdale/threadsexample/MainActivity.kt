@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,8 +18,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ThreadsExampleTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting("Android", Modifier.padding(innerPadding))
+                Scaffold(modifier = Modifier.fillMaxSize()) { _ ->
+                    FibonacciDemoNoBgThrd()
                 }
             }
         }
@@ -35,7 +34,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     )
 }
 
-// ToDo 1: Call `FibonacciDemoNoBgThrd` that calculates the Fibonacci number of a given number.
+// ToDo 1 DONE: Call `FibonacciDemoNoBgThrd` that calculates the Fibonacci number of a given number.
 // ToDo 2: Create a composable function called `FibonacciDemoWithCoroutine` that calculates the
 //  Fibonacci number of a given number using a coroutine.
 // ToDo 3: Start the application using the CountDownActivity
